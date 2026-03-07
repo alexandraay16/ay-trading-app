@@ -9,40 +9,7 @@ from datetime import datetime, timedelta
 # --- 1. 系統設定 ---
 st.set_page_config(page_title="Alpha Hunter V1 | AY 冠軍量化版", layout="wide", page_icon="🦅")
 
-# --- 2. 密碼驗證系統 ---
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-def check_password():
-    if not st.session_state.authenticated:
-        # 登入介面設計
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        st.markdown("<h1 style='text-align: center;'>🦅 Alpha Hunter 終端</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: gray;'>AY 專屬量化交易系統</p>", unsafe_allow_html=True)
-        
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            st.markdown("<div style='padding: 20px; border-radius: 10px; background-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-            pwd = st.text_input("請輸入專屬通行密碼 🔒", type="password")
-            if st.button("解鎖系統", use_container_width=True):
-                if pwd == "AY202688":
-                    st.session_state.authenticated = True
-                    st.rerun() # 密碼正確，重新整理頁面載入主程式
-                else:
-                    st.error("❌ 密碼錯誤，拒絕存取。")
-            st.markdown("</div>", unsafe_allow_html=True)
-        
-        # 停止往下執行程式碼，直到密碼正確
-        st.stop()
-
-# 執行密碼檢查
-check_password()
-
-# ==========================================
-# 密碼正確後，以下主程式才會執行
-# ==========================================
-
-# --- 3. 獨家數學引擎 (No-Lib) ---
+# --- 2. 獨家數學引擎 (No-Lib) ---
 def calc_sma(series, window):
     return series.rolling(window=window).mean()
 
@@ -63,7 +30,7 @@ def calc_atr(df, period=14):
     tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
     return tr.rolling(window=period).mean()
 
-# --- 4. 高勝率 K線形態偵測 ---
+# --- 3. 高勝率 K線形態偵測 ---
 def detect_patterns(df):
     patterns = pd.Series(index=df.index, data="", dtype=str)
     
@@ -96,7 +63,7 @@ def detect_patterns(df):
             
     return patterns
 
-# --- 5. 獲取與計算數據 ---
+# --- 4. 獲取與計算數據 ---
 @st.cache_data(ttl=1800)
 def get_data(ticker):
     try:
@@ -136,7 +103,7 @@ def get_news(ticker):
     except:
         return []
 
-# --- 6. 信號判斷模組 (Detected Signals) ---
+# --- 5. 信號判斷模組 (Detected Signals) ---
 def analyze_signals(df):
     curr = df.iloc[-1]
     prev = df.iloc[-2]
@@ -170,7 +137,7 @@ def analyze_signals(df):
         
     return signals
 
-# --- 7. AY 回測引擎 (近半年) ---
+# --- 6. AY 回測引擎 (近半年) ---
 def run_backtest(df):
     # 取近 120 個交易日 (約半年)
     test_df = df.tail(120).copy()
